@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "ES2022",
+        "outDir": "out",
+        "lib": ["ES2022", "DOM"],
+        "sourceMap": true,
+        "rootDir": "src",
+        "strict": false,
+        "moduleResolution": "node",
+        "skipLibCheck": true,
+        "noImplicitAny": false,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
+        "types": ["node", "vscode", "ws"],
+    },
+    "exclude": ["node_modules", ".vscode-test"],
+}

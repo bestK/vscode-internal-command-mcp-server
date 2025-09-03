@@ -1,0 +1,90 @@
+{
+    "name": "vscode-mcp-server",
+    "displayName": "🕹️ VSCode MCP Server",
+    "description": "VSCode extension that runs as MCP server to execute internal commands",
+    "repository": "https://github.com/bestk/vscode-internal-command-mcp-server",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.74.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./out/extension.js",
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "start": "node ./out/server.js",
+        "mcp-server": "node ./out/stdio-server.js"
+    },
+    "devDependencies": {
+        "@types/node": "16.x",
+        "@types/vscode": "^1.74.0",
+        "@types/ws": "^8.5.0",
+        "typescript": "^5.9.2"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.0.0",
+        "fastmcp": "^3.15.2",
+        "ws": "^8.14.0",
+        "zod": "^3.25.76"
+    },
+    "contributes": {
+        "commands": [
+            {
+                "command": "vscodeMcpServer.startServer",
+                "title": "🕹️ VSCode MCP Server: Start Server"
+            },
+            {
+                "command": "vscodeMcpServer.stopServer",
+                "title": "🕹️ VSCode MCP Server: Stop Server"
+            },
+            {
+                "command": "vscodeMcpServer.showStatus",
+                "title": "🕹️ VSCode MCP Server: Show Status"
+            },
+            {
+                "command": "vscodeMcpServer.executeCommand",
+                "title": "🕹️ VSCode MCP Server: Execute Command"
+            },
+            {
+                "command": "vscodeMcpServer.testMcpTools",
+                "title": "🕹️ VSCode MCP Server: Test MCP Tools"
+            }
+        ],
+        "configuration": {
+            "title": "VSCode MCP Server",
+            "properties": {
+                "vscodeMcpServer.port": {
+                    "type": "number",
+                    "default": 8080,
+                    "description": "MCP server port"
+                },
+                "vscodeMcpServer.host": {
+                    "type": "string",
+                    "default": "localhost",
+                    "description": "MCP server host"
+                },
+                "vscodeMcpServer.autoStart": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Auto-start MCP server on extension activation"
+                },
+                "vscodeMcpServer.enableWebSocket": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable WebSocket server for real-time communication"
+                },
+                "vscodeMcpServer.allowedCommands": {
+                    "type": "array",
+                    "default": [],
+                    "description": "List of allowed commands (empty for all commands)"
+                }
+            }
+        }
+    }
+}
