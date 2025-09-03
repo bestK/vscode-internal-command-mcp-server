@@ -1,8 +1,11 @@
 {
-    "name": "vscode-mcp-server",
-    "displayName": "🕹️ VSCode MCP Server",
+    "name": "vscode-internal-command-mcp-server",
+    "displayName": "🕹️ VSCode Internal Command MCP Server",
     "description": "VSCode extension that runs as MCP server to execute internal commands",
     "repository": "https://github.com/bestk/vscode-internal-command-mcp-server",
+    "license": "MIT",
+    "icon": "icon.png",
+    "publisher": "bestk",
     "version": "0.0.1",
     "engines": {
         "vscode": "^1.74.0"
@@ -36,50 +39,50 @@
     "contributes": {
         "commands": [
             {
-                "command": "vscodeMcpServer.startServer",
-                "title": "🕹️ VSCode MCP Server: Start Server"
+                "command": "vscodeICommandMcpServer.startServer",
+                "title": "🕹️ VSCode Internal Command MCP Server: Start Server"
             },
             {
-                "command": "vscodeMcpServer.stopServer",
-                "title": "🕹️ VSCode MCP Server: Stop Server"
+                "command": "vscodeICommandMcpServer.stopServer",
+                "title": "🕹️ VSCode Internal Command MCP Server: Stop Server"
             },
             {
-                "command": "vscodeMcpServer.showStatus",
-                "title": "🕹️ VSCode MCP Server: Show Status"
+                "command": "vscodeICommandMcpServer.showStatus",
+                "title": "🕹️ VSCode Internal Command MCP Server: Show Status"
             },
             {
-                "command": "vscodeMcpServer.executeCommand",
-                "title": "🕹️ VSCode MCP Server: Execute Command"
+                "command": "vscodeICommandMcpServer.executeCommand",
+                "title": "🕹️ VSCode Internal Command MCP Server: Execute Command"
             },
             {
-                "command": "vscodeMcpServer.testMcpTools",
-                "title": "🕹️ VSCode MCP Server: Test MCP Tools"
+                "command": "vscodeICommandMcpServer.testMcpTools",
+                "title": "🕹️ VSCode Internal Command MCP Server: Test MCP Tools"
             }
         ],
         "configuration": {
-            "title": "VSCode MCP Server",
+            "title": "VSCode Internal Command MCP Server",
             "properties": {
-                "vscodeMcpServer.port": {
+                "vscodeICommandMcpServer.port": {
                     "type": "number",
                     "default": 8080,
-                    "description": "MCP server port"
+                    "description": "Internal Command MCP server port"
                 },
-                "vscodeMcpServer.host": {
+                "vscodeICommandMcpServer.host": {
                     "type": "string",
                     "default": "localhost",
-                    "description": "MCP server host"
+                    "description": "Internal Command MCP server host"
                 },
-                "vscodeMcpServer.autoStart": {
+                "vscodeICommandMcpServer.autoStart": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Auto-start MCP server on extension activation"
+                    "description": "Auto-start Internal Command MCP server on extension activation"
                 },
-                "vscodeMcpServer.enableWebSocket": {
+                "vscodeICommandMcpServer.enableWebSocket": {
                     "type": "boolean",
                     "default": true,
                     "description": "Enable WebSocket server for real-time communication"
                 },
-                "vscodeMcpServer.allowedCommands": {
+                "vscodeICommandMcpServer.allowedCommands": {
                     "type": "array",
                     "default": [],
                     "description": "List of allowed commands (empty for all commands)"

@@ -18,8 +18,8 @@
 ### 1. 克隆项目
 
 ```bash
-git clone <your-repo-url>
-cd cursor-command-http
+git clone https://github.com/bestk/vscode-internal-command-mcp-server
+cd vscode-internal-command-mcp-server
 ```
 
 ### 2. 安装依赖
@@ -373,7 +373,7 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 如果您遇到问题或有疑问：
 
-1. 查看 [Issues](https://github.com/your-repo/cursor-command-http/issues)
+1. 查看 [Issues](https://github.com/bestk/vscode-internal-command-mcp-server/issues)
 2. 创建新的 Issue
 3. 查看 FastMCP 文档: https://github.com/punkpeye/fastmcp
 

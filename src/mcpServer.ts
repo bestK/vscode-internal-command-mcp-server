@@ -366,13 +366,13 @@ export class MyMcpServer {
                     vscode.window.showInformationMessage('MCP 服务器地址已复制到剪贴板');
                 }
             });
-            console.log(`VSCode MCP Server started on http://${host}:${port}`);
+            console.log(`VSCode Internal Command MCP Server started on http://${host}:${port}`);
 
             return true;
         } catch (error) {
             this.isRunning = false;
             this.updateStatusBar();
-            vscode.window.showErrorMessage(`MCP Server 启动失败: ${error}`);
+            vscode.window.showErrorMessage(`Internal Command MCP Server 启动失败: ${error}`);
             return false;
         }
     }
@@ -395,11 +395,11 @@ export class MyMcpServer {
 
             this.isRunning = false;
             this.updateStatusBar();
-            vscode.window.showInformationMessage('🕹️ MCP Server 已停止');
-            console.log('VSCode MCP Server stopped');
+            vscode.window.showInformationMessage('🕹️ Internal Command MCP Server 已停止');
+            console.log('VSCode Internal Command MCP Server stopped');
             return true;
         } catch (error) {
-            vscode.window.showErrorMessage(`MCP Server 停止失败: ${error}`);
+            vscode.window.showErrorMessage(`VSCode Internal Command MCP Server 停止失败: ${error}`);
             return false;
         }
     }
