@@ -22,7 +22,8 @@
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "start": "node ./out/server.js",
-        "mcp-server": "node ./out/stdio-server.js"
+        "mcp-server": "node ./out/stdio-server.js",
+        "package": "vsce package"
     },
     "devDependencies": {
         "@types/node": "16.x",
@@ -39,50 +40,50 @@
     "contributes": {
         "commands": [
             {
-                "command": "vscodeICommandMcpServer.startServer",
+                "command": "vscode-internal-command-mcp-server.startServer",
                 "title": "🕹️ VSCode Internal Command MCP Server: Start Server"
             },
             {
-                "command": "vscodeICommandMcpServer.stopServer",
+                "command": "vscode-internal-command-mcp-server.stopServer",
                 "title": "🕹️ VSCode Internal Command MCP Server: Stop Server"
             },
             {
-                "command": "vscodeICommandMcpServer.showStatus",
+                "command": "vscode-internal-command-mcp-server.showStatus",
                 "title": "🕹️ VSCode Internal Command MCP Server: Show Status"
             },
             {
-                "command": "vscodeICommandMcpServer.executeCommand",
+                "command": "vscode-internal-command-mcp-server.executeCommand",
                 "title": "🕹️ VSCode Internal Command MCP Server: Execute Command"
             },
             {
-                "command": "vscodeICommandMcpServer.testMcpTools",
+                "command": "vscode-internal-command-mcp-server.testMcpTools",
                 "title": "🕹️ VSCode Internal Command MCP Server: Test MCP Tools"
             }
         ],
         "configuration": {
             "title": "VSCode Internal Command MCP Server",
             "properties": {
-                "vscodeICommandMcpServer.port": {
+                "vscode-internal-command-mcp-server.port": {
                     "type": "number",
                     "default": 8080,
                     "description": "Internal Command MCP server port"
                 },
-                "vscodeICommandMcpServer.host": {
+                "vscode-internal-command-mcp-server.host": {
                     "type": "string",
                     "default": "localhost",
                     "description": "Internal Command MCP server host"
                 },
-                "vscodeICommandMcpServer.autoStart": {
+                "vscode-internal-command-mcp-server.autoStart": {
                     "type": "boolean",
                     "default": true,
                     "description": "Auto-start Internal Command MCP server on extension activation"
                 },
-                "vscodeICommandMcpServer.enableWebSocket": {
+                "vscode-internal-command-mcp-server.enableWebSocket": {
                     "type": "boolean",
                     "default": true,
                     "description": "Enable WebSocket server for real-time communication"
                 },
-                "vscodeICommandMcpServer.allowedCommands": {
+                "vscode-internal-command-mcp-server.allowedCommands": {
                     "type": "array",
                     "default": [],
                     "description": "List of allowed commands (empty for all commands)"
