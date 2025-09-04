@@ -7,6 +7,8 @@
 -   🌐 **HTTP Streaming 支持**: 使用 `text/event-stream` 协议，支持实时通信
 -   🔧 **VSCode 命令执行**: 远程执行任意 VSCode 内部命令
 -   📊 **工作区信息查询**: 获取当前工作区状态和文件信息
+-   ⚡ **异步后台执行**: 支持异步命令执行，不阻塞用户界面
+-   ⏰ **可配置延时**: 支持设置命令执行延时
 -   🛡️ **安全控制**: 可配置的命令白名单机制
 -   📡 **实时状态监控**: 状态栏显示服务器运行状态
 -   🔗 **标准 MCP 协议**: 完全兼容 Model Context Protocol 规范
@@ -45,11 +47,13 @@ npm run compile
 
 ```json
 {
-    "vscodeICommandMcpServer.port": 8080,
-    "vscodeICommandMcpServer.host": "localhost",
-    "vscodeICommandMcpServer.autoStart": true,
-    "vscodeICommandMcpServer.enableWebSocket": true,
-    "vscodeICommandMcpServer.allowedCommands": [
+    "vscode-internal-command-mcp-server.port": 8080,
+    "vscode-internal-command-mcp-server.host": "localhost",
+    "vscode-internal-command-mcp-server.autoStart": true,
+    "vscode-internal-command-mcp-server.asyncExecution": true,
+    "vscode-internal-command-mcp-server.executionDelay": 1000,
+    "vscode-internal-command-mcp-server.showAsyncNotifications": false,
+    "vscode-internal-command-mcp-server.allowedCommands": [
         "editor.action.formatDocument",
         "workbench.action.files.save",
         "editor.action.clipboardCopyAction"
@@ -59,13 +63,15 @@ npm run compile
 
 ### 配置说明
 
-| 配置项            | 类型     | 默认值      | 说明                                         |
-| ----------------- | -------- | ----------- | -------------------------------------------- |
-| `port`            | number   | 8080        | MCP 服务器端口                               |
-| `host`            | string   | "localhost" | MCP 服务器主机地址                           |
-| `autoStart`       | boolean  | true        | 扩展激活时自动启动服务器                     |
-| `enableWebSocket` | boolean  | true        | 启用 WebSocket 支持（未来功能）              |
-| `allowedCommands` | string[] | []          | 允许执行的命令列表（空数组表示允许所有命令） |
+| 配置项                   | 类型     | 默认值      | 说明                                         |
+| ------------------------ | -------- | ----------- | -------------------------------------------- |
+| `port`                   | number   | 8080        | MCP 服务器端口                               |
+| `host`                   | string   | "localhost" | MCP 服务器主机地址                           |
+| `autoStart`              | boolean  | true        | 扩展激活时自动启动服务器                     |
+| `asyncExecution`         | boolean  | true        | 启用异步命令执行（立即返回，后台执行）       |
+| `executionDelay`         | number   | 0           | 命令执行延时（毫秒）                         |
+| `showAsyncNotifications` | boolean  | false       | 显示异步命令执行完成通知                     |
+| `allowedCommands`        | string[] | []          | 允许执行的命令列表（空数组表示允许所有命令） |
 
 ## 🚀 使用方法
 
@@ -73,8 +79,8 @@ npm run compile
 
 1. **自动启动**: 扩展激活时自动启动（如果 `autoStart` 为 true）
 2. **手动启动**:
-    - 命令面板: `VSCode MCP Server: Start Server`
-    - 或点击状态栏中的 🚀 FastMCP 按钮
+    - 命令面板: `VSCode Internal Command MCP Server: Start Server`
+    - 或点击状态栏中的 🚀 VSCode internal command MCP 按钮
 
 ### 服务器地址
 
@@ -83,8 +89,8 @@ npm run compile
 
 ### 状态监控
 
--   状态栏显示: 🚀 FastMCP 🟢 (运行中) / 🚀 FastMCP 🔴 (已停止)
--   命令面板: `VSCode MCP Server: Show Status` 查看详细状态
+-   状态栏显示: 🚀 VSCode internal command MCP 🟢 (运行中) / 🚀 VSCode internal command MCP 🔴 (已停止)
+-   命令面板: `VSCode Internal Command MCP Server: Show Status` 查看详细状态
 
 ## 🛠️ 可用工具 (MCP Tools)
 
@@ -101,14 +107,25 @@ npm run compile
 }
 ```
 
-**示例**:
+**异步执行响应示例**:
 
 ```json
 {
-    "name": "execute_vscode_command",
-    "arguments": {
-        "command": "editor.action.formatDocument",
-        "arguments": []
+    "success": true,
+    "async": true,
+    "taskId": "bg_task_1_1756952250790",
+    "message": "命令 'composer.cancelComposerStep' 已提交到后台执行，将在 1000ms 后执行",
+    "command": "composer.cancelComposerStep",
+    "arguments": [],
+    "executionDelay": 1000,
+    "queueLength": 1,
+    "taskStats": {
+        "total": 1,
+        "pending": 1,
+        "running": 0,
+        "completed": 0,
+        "failed": 0,
+        "cancelled": 0
     }
 }
 ```
@@ -228,15 +245,19 @@ curl -X POST http://localhost:8080/mcp \
 ### 核心组件
 
 ```
-┌─────────────────────┐
-│   VSCode Extension  │
-├─────────────────────┤
-│   FastMcpServer     │ ← 基于 FastMCP 框架
-├─────────────────────┤
-│   ServerManager     │ ← 服务器管理和状态
-├─────────────────────┤
-│   CommandExecutor   │ ← VSCode 命令执行器
-└─────────────────────┘
+┌─────────────────────────┐
+│   VSCode Extension      │
+├─────────────────────────┤
+│   FastMcpServer         │ ← 基于 FastMCP 框架
+├─────────────────────────┤
+│   ServerManager         │ ← 服务器管理和状态
+├─────────────────────────┤
+│   CommandExecutor       │ ← VSCode 命令执行器
+├─────────────────────────┤
+│ BackgroundTaskExecutor  │ ← 后台任务执行器
+├─────────────────────────┤
+│   TaskProvider          │ ← VS Code 任务提供者
+└─────────────────────────┘
 ```
 
 ### 技术栈
@@ -246,30 +267,40 @@ curl -X POST http://localhost:8080/mcp \
 -   **传输**: HTTP Streaming with Server-Sent Events (SSE)
 -   **验证**: Zod Schema 验证
 -   **平台**: VSCode Extension API
+-   **异步执行**: 基于 setInterval 的后台任务队列
 
 ### 网络协议
 
 -   **传输类型**: `httpStream`
 -   **内容类型**: `text/event-stream`
--   **支持协议**: HTTP/1.1, WebSocket (计划中)
+-   **支持协议**: HTTP/1.1
 -   **CORS**: 默认启用
+
+### 异步执行机制
+
+-   **任务队列**: 基于 Map 数据结构的内存队列
+-   **执行器**: 使用 setInterval 定期检查待执行任务
+-   **状态管理**: 支持 pending、running、completed、failed、cancelled 状态
+-   **延时执行**: 支持配置延时，任务在指定时间后执行
+-   **通知系统**: 可选的执行完成通知
 
 ## 🔧 开发
 
 ### 项目结构
 
 ```
-cursor-command-http/
+vscode-internal-command-mcp-server/
 ├── src/
-│   ├── extension.ts        # 扩展入口点
-│   ├── fastMcpServer.ts    # FastMCP 服务器实现
-│   ├── serverManager.ts    # 服务器管理器
-│   ├── commandExecutor.ts  # VSCode 命令执行器
-│   └── mcpServer.ts        # 原始 MCP 服务器（备用）
-├── out/                    # 编译输出
-├── package.json           # 扩展配置和依赖
-├── tsconfig.json          # TypeScript 配置
-└── README.md              # 项目文档
+│   ├── extension.ts              # 扩展入口点
+│   ├── fastMcpServer.ts         # FastMCP 服务器实现
+│   ├── serverManager.ts         # 服务器管理器
+│   ├── commandExecutor.ts       # VSCode 命令执行器
+│   ├── backgroundTaskExecutor.ts # 后台任务执行器
+│   └── taskProvider.ts          # VS Code 任务提供者
+├── out/                         # 编译输出
+├── package.json                 # 扩展配置和依赖
+├── tsconfig.json               # TypeScript 配置
+└── README.md                   # 项目文档
 ```
 
 ### 开发命令
@@ -296,7 +327,7 @@ code . # 打开 VSCode，按 F5 启动调试
 
 ### 使用内置测试工具
 
-1. 启动服务器后，使用命令: `VSCode MCP Server: Test MCP Tools`
+1. 启动服务器后，使用命令: `VSCode Internal Command MCP Server: Test MCP Tools`
 2. 选择要测试的工具
 3. 输入必要的参数
 4. 查看执行结果
@@ -319,7 +350,7 @@ npx fastmcp inspect src/fastMcpServer.ts
 
 ```json
 {
-    "vscodeICommandMcpServer.allowedCommands": [
+    "vscode-internal-command-mcp-server.allowedCommands": [
         "editor.action.formatDocument",
         "workbench.action.files.save",
         "workbench.action.files.saveAll",
@@ -335,9 +366,23 @@ npx fastmcp inspect src/fastMcpServer.ts
 -   支持 CORS，但建议在生产环境中配置适当的源限制
 -   所有命令执行都在 VSCode 安全上下文中进行
 
+### 异步执行安全
+
+-   任务队列在内存中管理，扩展关闭时自动清理
+-   支持任务取消和状态监控
+-   执行失败时提供详细错误信息
+
 ## 📝 更新日志
 
-### v0.0.1 (当前版本)
+### v0.0.2 (当前版本)
+
+-   ✅ 重构异步执行机制，使用后台任务队列
+-   ✅ 修复配置刷新问题，确保配置变更立即生效
+-   ✅ 优化任务状态管理和监控
+-   ✅ 改进错误处理和日志记录
+-   ✅ 简化代码结构，移除冗余组件
+
+### v0.0.1
 
 -   ✅ 基于 FastMCP 框架实现 MCP 服务器
 -   ✅ 支持 HTTP Streaming 和 SSE
@@ -361,7 +406,7 @@ npx fastmcp inspect src/fastMcpServer.ts
 
 ## 📄 许可证
 
-MIT License - 详见 [LICENSE](LICENSE) 文件
+MIT License - 详见 [LICENSE](LICENSE.md) 文件
 
 ## 🙏 致谢
 
