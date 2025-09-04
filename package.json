@@ -21,20 +21,15 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "start": "node ./out/server.js",
-        "mcp-server": "node ./out/stdio-server.js",
         "package": "vsce package"
     },
     "devDependencies": {
         "@types/node": "16.x",
         "@types/vscode": "^1.74.0",
-        "@types/ws": "^8.5.0",
         "typescript": "^5.9.2"
     },
     "dependencies": {
-        "@modelcontextprotocol/sdk": "^1.0.0",
         "fastmcp": "^3.15.2",
-        "ws": "^8.14.0",
         "zod": "^3.25.76"
     },
     "contributes": {
@@ -78,11 +73,7 @@
                     "default": true,
                     "description": "Auto-start Internal Command MCP server on extension activation"
                 },
-                "vscode-internal-command-mcp-server.enableWebSocket": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable WebSocket server for real-time communication"
-                },
+
                 "vscode-internal-command-mcp-server.allowedCommands": {
                     "type": "array",
                     "default": [],
@@ -95,12 +86,12 @@
                 },
                 "vscode-internal-command-mcp-server.executionDelay": {
                     "type": "number",
-                    "default": 0,
+                    "default": 500,
                     "description": "Delay in milliseconds before executing commands when async mode is enabled"
                 },
                 "vscode-internal-command-mcp-server.showAsyncNotifications": {
                     "type": "boolean",
-                    "default": false,
+                    "default": true,
                     "description": "Show notifications when async commands complete successfully"
                 }
             }

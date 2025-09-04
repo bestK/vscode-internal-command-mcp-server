@@ -1,14 +1,11 @@
 import * as vscode from 'vscode';
-import { CommandExecutor } from './commandExecutor';
 import { FastMcpServer } from './fastMcpServer';
 
 export class ServerManager {
     private mcpServer: FastMcpServer;
-    private commandExecutor: CommandExecutor;
 
     constructor(mcpServer: FastMcpServer) {
         this.mcpServer = mcpServer;
-        this.commandExecutor = new CommandExecutor();
     }
 
     public initialize() {
@@ -19,22 +16,7 @@ export class ServerManager {
             this.startServer();
         }
 
-        vscode.workspace.onDidChangeConfiguration(e => {
-            if (e.affectsConfiguration('vscode-internal-command-mcp-server')) {
-                console.log('VSCode internal command MCP configuration changed, updating...');
-                this.commandExecutor.updateAllowedCommands();
-                this.commandExecutor.updateAsyncConfig();
-
-                // 显示配置更新通知
-                const config = vscode.workspace.getConfiguration('vscode-internal-command-mcp-server');
-                const asyncExecution = config.get<boolean>('asyncExecution', true);
-                const executionDelay = config.get<number>('executionDelay', 0);
-
-                vscode.window.showInformationMessage(
-                    `MCP 配置已更新: 异步执行=${asyncExecution ? '开启' : '关闭'}, 延时=${executionDelay}ms`,
-                );
-            }
-        });
+        // 配置变更监听已在 extension.ts 中处理
     }
 
     public async startServer(): Promise<boolean> {
@@ -50,9 +32,6 @@ export class ServerManager {
     public async showStatus(): Promise<void> {
         const config = vscode.workspace.getConfiguration('vscode-internal-command-mcp-server');
         const isRunning = this.mcpServer.running;
-        const allowedCommands = this.commandExecutor.getAllowedCommands();
-        const asyncConfig = this.commandExecutor.getAsyncConfig();
-        const taskStats = this.commandExecutor.getBackgroundTaskStats();
 
         const status = isRunning ? 'Running' : 'Stopped';
         const statusIcon = isRunning ? '🟢' : '🔴';
@@ -64,11 +43,8 @@ export class ServerManager {
         // 获取网络配置
         const host = config.get<string>('host', 'localhost');
         const port = config.get<number>('port', 8080);
-        const enableWebSocket = config.get<boolean>('enableWebSocket', true);
-        const httpUrl = `http://${host}:${port}`;
-        const wsUrl = `ws://${host}:${port}`;
 
-        const mcpUrl = `${httpUrl}/mcp`;
+        const mcpUrl = `http://${host}:${port}/mcp`;
         const sessionsCount = this.mcpServer.sessions.length;
 
         const message = `
@@ -90,20 +66,12 @@ Server Details:
 • CORS: Enabled ✅
 
 Security:
-• Allowed Commands: ${allowedCommands.length > 0 ? allowedCommands.join(', ') : 'All commands allowed'}
+• Allowed Commands: ${config.get<string[]>('allowedCommands', []).length > 0 ? config.get<string[]>('allowedCommands', []).join(', ') : 'All commands allowed'}
 
 Execution Configuration:
-• Async Execution: ${asyncConfig.asyncExecution ? 'Enabled ✅' : 'Disabled ❌'}
-• Execution Delay: ${asyncConfig.executionDelay}ms
-• Execution Mode: ${asyncConfig.asyncExecution ? 'Commands return immediately, execute in background' : 'Commands wait for completion'}
-
-Background Task Status:
-• Total Tasks: ${taskStats.total}
-• Pending: ${taskStats.pending}
-• Running: ${taskStats.running}
-• Completed: ${taskStats.completed}
-• Failed: ${taskStats.failed}
-• Cancelled: ${taskStats.cancelled}
+• Async Execution: ${config.get<boolean>('asyncExecution', true) ? 'Enabled ✅' : 'Disabled ❌'}
+• Execution Delay: ${config.get<number>('executionDelay', 0)}ms
+• Execution Mode: ${config.get<boolean>('asyncExecution', true) ? 'Commands return immediately, execute in background' : 'Commands wait for completion'}
 
 Available MCP Tools:
 ${toolsList}
@@ -141,7 +109,36 @@ Framework Benefits:
     }
 
     public async executeCommand(): Promise<void> {
-        await this.commandExecutor.executeWithUserInput();
+        const command = await vscode.window.showInputBox({
+            prompt: 'Enter VSCode command to execute',
+            placeHolder: 'editor.action.inlineDiffs.hide',
+        });
+
+        if (!command) {
+            return;
+        }
+
+        const argsInput = await vscode.window.showInputBox({
+            prompt: `Enter arguments for command "${command}" (JSON format)`,
+            placeHolder: '{"arg1": "value1", "arg2": "value2"}',
+        });
+
+        let args = undefined;
+        if (argsInput) {
+            try {
+                args = JSON.parse(argsInput);
+            } catch (error) {
+                vscode.window.showErrorMessage('Invalid JSON format for arguments');
+                return;
+            }
+        }
+
+        try {
+            const result = await vscode.commands.executeCommand(command, args);
+            vscode.window.showInformationMessage(`Command executed: ${command}`);
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to execute command: ${error}`);
+        }
     }
 
     public async testMcpTools(): Promise<void> {

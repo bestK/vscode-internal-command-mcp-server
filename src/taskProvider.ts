@@ -78,39 +78,12 @@ export class CommandTaskProvider implements vscode.TaskProvider {
     }
 
     private generateExecutionScript(definition: CommandTaskDefinition): string {
-        // 生成 Node.js 脚本来执行 VSCode 命令
+        // 简化的脚本，主要用于日志记录
         return `
-const vscode = require('vscode');
-
-async function executeCommand() {
-    try {
-        console.log('Task ${definition.taskId}: Starting execution of command: ${definition.command}');
-        
-        ${
-            definition.delay && definition.delay > 0
-                ? `
-        console.log('Task ${definition.taskId}: Waiting ${definition.delay}ms before execution...');
-        await new Promise(resolve => setTimeout(resolve, ${definition.delay}));
-        `
-                : ''
-        }
-        
-        console.log('Task ${definition.taskId}: Executing command: ${definition.command}');
-        
-        // 注意：在独立进程中无法直接调用 vscode.commands.executeCommand
-        // 我们需要通过其他方式来执行命令
-        console.log('Task ${definition.taskId}: Command would be executed here');
-        console.log('Arguments:', ${JSON.stringify(definition.arguments || [])});
-        
-        console.log('Task ${definition.taskId}: Command execution completed');
-        
-    } catch (error) {
-        console.error('Task ${definition.taskId}: Command execution failed:', error.message);
-        process.exit(1);
-    }
-}
-
-executeCommand();
+console.log('Task ${definition.taskId}: Command: ${definition.command}');
+console.log('Arguments:', ${JSON.stringify(definition.arguments || [])});
+${definition.delay && definition.delay > 0 ? `setTimeout(() => console.log('Task ${definition.taskId}: Delayed execution'), ${definition.delay});` : ''}
+console.log('Task ${definition.taskId}: Completed');
         `;
     }
 

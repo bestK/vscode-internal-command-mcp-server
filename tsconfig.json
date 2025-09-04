@@ -13,7 +13,7 @@
         "esModuleInterop": true,
         "resolveJsonModule": true,
         "allowSyntheticDefaultImports": true,
-        "types": ["node", "vscode", "ws"],
+        "types": ["node", "vscode"],
     },
     "exclude": ["node_modules", ".vscode-test"],
 }
