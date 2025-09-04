@@ -6,7 +6,7 @@
     "license": "MIT",
     "icon": "icon.png",
     "publisher": "bestk",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "engines": {
         "vscode": "^1.74.0"
     },
@@ -73,7 +73,6 @@
                     "default": true,
                     "description": "Auto-start Internal Command MCP server on extension activation"
                 },
-
                 "vscode-internal-command-mcp-server.allowedCommands": {
                     "type": "array",
                     "default": [],
