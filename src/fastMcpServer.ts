@@ -174,7 +174,7 @@ export class FastMcpServer {
 
         try {
             // 获取配置
-            const config = vscode.workspace.getConfiguration('vscodeICommandMcpServer');
+            const config = vscode.workspace.getConfiguration('vscode-internal-command-mcp-server');
             const host = config.get<string>('host', 'localhost');
             const port = config.get<number>('port', 8080);
 
@@ -205,9 +205,9 @@ export class FastMcpServer {
                 .showInformationMessage(mcpInfo, '查看详情', '测试工具', '复制地址', '插件源码')
                 .then(selection => {
                     if (selection === '查看详情') {
-                        vscode.commands.executeCommand('vscodeICommandMcpServer.showStatus');
+                        vscode.commands.executeCommand('vscode-internal-command-mcp-server.showStatus');
                     } else if (selection === '测试工具') {
-                        vscode.commands.executeCommand('vscodeICommandMcpServer.testMcpTools');
+                        vscode.commands.executeCommand('vscode-internal-command-mcp-server.testMcpTools');
                     } else if (selection === '复制地址') {
                         vscode.env.clipboard.writeText(`http://${host}:${port}/mcp`);
                         vscode.window.showInformationMessage('FastMCP 服务器地址已复制到剪贴板');
@@ -338,7 +338,9 @@ export class FastMcpServer {
     }
 
     public updateConfiguration() {
-        // 配置更新逻辑
+        // 更新异步配置
+        this.commandExecutor.updateAllowedCommands();
+        this.commandExecutor.updateAsyncConfig();
         console.log('VSCode internal command MCP configuration updated');
     }
 

@@ -87,6 +87,21 @@
                     "type": "array",
                     "default": [],
                     "description": "List of allowed commands (empty for all commands)"
+                },
+                "vscode-internal-command-mcp-server.asyncExecution": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable asynchronous command execution (returns immediately)"
+                },
+                "vscode-internal-command-mcp-server.executionDelay": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Delay in milliseconds before executing commands when async mode is enabled"
+                },
+                "vscode-internal-command-mcp-server.showAsyncNotifications": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show notifications when async commands complete successfully"
                 }
             }
         }

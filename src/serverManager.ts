@@ -12,7 +12,7 @@ export class ServerManager {
     }
 
     public initialize() {
-        const config = vscode.workspace.getConfiguration('vscodeICommandMcpServer');
+        const config = vscode.workspace.getConfiguration('vscode-internal-command-mcp-server');
         const autoStart = config.get<boolean>('autoStart', true);
 
         if (autoStart) {
@@ -20,8 +20,19 @@ export class ServerManager {
         }
 
         vscode.workspace.onDidChangeConfiguration(e => {
-            if (e.affectsConfiguration('vscodeICommandMcpServer')) {
+            if (e.affectsConfiguration('vscode-internal-command-mcp-server')) {
+                console.log('VSCode internal command MCP configuration changed, updating...');
                 this.commandExecutor.updateAllowedCommands();
+                this.commandExecutor.updateAsyncConfig();
+
+                // 显示配置更新通知
+                const config = vscode.workspace.getConfiguration('vscode-internal-command-mcp-server');
+                const asyncExecution = config.get<boolean>('asyncExecution', true);
+                const executionDelay = config.get<number>('executionDelay', 0);
+
+                vscode.window.showInformationMessage(
+                    `MCP 配置已更新: 异步执行=${asyncExecution ? '开启' : '关闭'}, 延时=${executionDelay}ms`,
+                );
             }
         });
     }
@@ -37,9 +48,11 @@ export class ServerManager {
     }
 
     public async showStatus(): Promise<void> {
-        const config = vscode.workspace.getConfiguration('vscodeICommandMcpServer');
+        const config = vscode.workspace.getConfiguration('vscode-internal-command-mcp-server');
         const isRunning = this.mcpServer.running;
         const allowedCommands = this.commandExecutor.getAllowedCommands();
+        const asyncConfig = this.commandExecutor.getAsyncConfig();
+        const taskStats = this.commandExecutor.getBackgroundTaskStats();
 
         const status = isRunning ? 'Running' : 'Stopped';
         const statusIcon = isRunning ? '🟢' : '🔴';
@@ -78,6 +91,19 @@ Server Details:
 
 Security:
 • Allowed Commands: ${allowedCommands.length > 0 ? allowedCommands.join(', ') : 'All commands allowed'}
+
+Execution Configuration:
+• Async Execution: ${asyncConfig.asyncExecution ? 'Enabled ✅' : 'Disabled ❌'}
+• Execution Delay: ${asyncConfig.executionDelay}ms
+• Execution Mode: ${asyncConfig.asyncExecution ? 'Commands return immediately, execute in background' : 'Commands wait for completion'}
+
+Background Task Status:
+• Total Tasks: ${taskStats.total}
+• Pending: ${taskStats.pending}
+• Running: ${taskStats.running}
+• Completed: ${taskStats.completed}
+• Failed: ${taskStats.failed}
+• Cancelled: ${taskStats.cancelled}
 
 Available MCP Tools:
 ${toolsList}
