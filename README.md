@@ -2,6 +2,9 @@
 
 🚀 一个基于 [FastMCP](https://github.com/punkpeye/fastmcp) 框架的 VSCode 扩展，将 VSCode 转换为 MCP (Model Context Protocol) 服务器，支持外部客户端通过 HTTP Streaming 和 Server-Sent Events (SSE) 执行 VSCode 内部命令。
 
+[English Documentation](./doc/README.en.md)
+
+
 ## ✨ 功能特性
 
 -   🌐 **HTTP Streaming 支持**: 使用 `text/event-stream` 协议，支持实时通信
